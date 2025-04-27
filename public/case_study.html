@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Case Study...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper slider CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Quicksand:wght@400;600&display=swap');
+        
+        :root {
+            --ghibli-blue: #6bb2e2;
+            --ghibli-green: #a5d6a7;
+            --ghibli-yellow: #fff59d;
+            --ghibli-red: #ef9a9a;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f9f7f0;
+            color: #333;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        
+        .ghibli-font {
+            font-family: 'Gochi Hand', cursive;
+        }
+        
+        .handwriting {
+            font-family: 'Patrick Hand', cursive;
+        }
+        
+        .ghibli-bg-blue {
+            background-color: var(--ghibli-blue);
+        }
+        
+        .ghibli-bg-green {
+            background-color: var(--ghibli-green);
+        }
+        
+        .ghibli-bg-yellow {
+            background-color: var(--ghibli-yellow);
+        }
+        
+        .ghibli-bg-red {
+            background-color: var(--ghibli-red);
+        }
+        
+        .ghibli-text-blue {
+            color: var(--ghibli-blue);
+        }
+        
+        .ghibli-text-green {
+            color: var(--ghibli-green);
+        }
+        
+        .ghibli-text-yellow {
+            color: var(--ghibli-yellow);
+        }
+        
+        .ghibli-text-red {
+            color: var(--ghibli-red);
+        }
+        
+        .sketch-border {
+            border: 3px dashed #333;
+            border-radius: 8px;
+        }
+        
+        .cloud-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%236bb2e2' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .page-section {
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, var(--ghibli-blue), var(--ghibli-green), var(--ghibli-yellow), var(--ghibli-red));
+        }
+        
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .slide-in {
+            animation: slideIn 1s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .delayed-1 {
+            animation-delay: 0.2s;
+        }
+        
+        .delayed-2 {
+            animation-delay: 0.4s;
+        }
+        
+        .delayed-3 {
+            animation-delay: 0.6s;
+        }
+        
+        .delayed-4 {
+            animation-delay: 0.8s;
+        }
+        
+        /* Dark Mode Styles */
+        .dark-mode {
+            background-color: #1a365d;
+            color: #e2e8f0;
+        }
+        .dark-mode .hero-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+        }
+        .dark-mode .bg-white {
+            background-color: #1e293b;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0;
+        }
+        .dark-mode .text-gray-600 {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="relative transition-colors duration-300">
+    <!-- Dark Mode Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="darkModeToggle" class="bg-yellow-200 hover:bg-yellow-300 text-gray-800 rounded-full p-2 shadow-lg">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white bg-opacity-90 shadow-sm z-40 dark:bg-gray-800 dark:bg-opacity-90">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="ghibli-font text-2xl text-blue-600 dark:text-blue-300">
+                    <a href="index.html"><span class="text-yellow-500">★</span> Product Journey</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-800 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-300">Back to Portfolio</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobileMenuButton" class="text-gray-800 dark:text-gray-300">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-gray-800 py-2 px-4 shadow-lg">
+            <a href="index.html" class="block py-2 text-gray-800 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-300">Back to Portfolio</a>
+        </div>
+    </nav>
+    
+    <!-- Loading State -->
+    <div id="loadingState" class="flex flex-col items-center justify-center min-h-screen">
+        <div class="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500 mb-8"></div>
+        <h2 class="text-2xl ghibli-font text-blue-600">Loading Case Study...</h2>
+    </div>
+    
+    <!-- Error State -->
+    <div id="errorState" class="hidden flex flex-col items-center justify-center min-h-screen">
+        <div class="text-red-500 text-6xl mb-6">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-4 text-center">Oops! Something went wrong.</h2>
+        <p class="text-gray-600 mb-8 text-center max-w-md">We couldn't find the case study you're looking for.</p>
+        <a href="index.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Projects
+        </a>
+    </div>
+    
+    <!-- Case Study Content -->
+    <div id="caseStudyContent" class="hidden pt-24">
+        <!-- Hero Section -->
+        <section id="hero" class="page-section cloud-bg flex items-center justify-center">
+            <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 slide-in">
+                    <h1 id="projectTitle" class="text-4xl md:text-6xl font-bold mb-6 ghibli-text-blue ghibli-font"></h1>
+                    <p id="projectDescription" class="text-lg mb-8 text-gray-700"></p>
+                    <div class="flex space-x-4">
+                        <a href="index.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition transform hover:scale-105 inline-flex items-center">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Portfolio
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center slide-in delayed-1">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80 floating">
+                        <img id="projectImage" alt="Project illustration" class="w-full h-full object-contain">
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Dynamic Content -->
+        <div id="dynamicCaseStudyContent"></div>
+        
+        <!-- Default Content (shown if no custom content) -->
+        <section id="defaultContent" class="py-16 bg-white dark:bg-gray-800">
+            <div class="container mx-auto px-6">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-blue-50 p-8 rounded-xl shadow-lg dark:bg-gray-700 mb-10">
+                        <h2 class="text-3xl font-bold mb-6 ghibli-font text-blue-700 dark:text-blue-300">Project Details</h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Category</h3>
+                                <p id="projectCategory" class="text-gray-600 dark:text-gray-400"></p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Key Achievement</h3>
+                                <p id="projectAchievement" class="text-gray-600 dark:text-gray-400"></p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Rating</h3>
+                                <p id="projectRating" class="text-yellow-500"></p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Date Added</h3>
+                                <p id="projectDate" class="text-gray-600 dark:text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400 mb-8">This project doesn't have detailed case study content yet.</p>
+                        <a href="index.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition inline-flex items-center">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Portfolio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr8ZruVUy_bHlnQRR-J_D5swyKQobkCWg",
+            authDomain: "projectportfolio-29467.firebaseapp.com",
+            databaseURL: "https://projectportfolio-29467-default-rtdb.firebaseio.com",
+            projectId: "projectportfolio-29467",
+            storageBucket: "projectportfolio-29467.appspot.com",
+            messagingSenderId: "506713176316",
+            appId: "1:506713176316:web:f2dea75b7c84e4fc20bdad"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        
+        // DOM Elements
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const caseStudyContent = document.getElementById('caseStudyContent');
+        const dynamicCaseStudyContent = document.getElementById('dynamicCaseStudyContent');
+        const defaultContent = document.getElementById('defaultContent');
+        
+        // Get case study ID or project ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const caseStudyId = urlParams.get('caseId');
+        const projectId = urlParams.get('id');
+        console.log('Debug: URL parameters', { caseStudyId, projectId });
+        
+        // Load case study data
+        if (caseStudyId) {
+            console.log('Debug: loading case study by ID', caseStudyId);
+            // If we have a case study ID, load directly from caseStudies collection
+            loadCaseStudy(caseStudyId);
+        } else if (projectId) {
+            console.log('Debug: checking project for caseStudyId', projectId);
+            // If we only have project ID, check if it has a linked case study
+            db.ref(`projects/${projectId}`).once('value')
+                .then(snapshot => {
+                    console.log('Debug: project snapshot', snapshot.val());
+                    if (snapshot.exists()) {
+                        const project = snapshot.val();
+                        
+                        if (project.caseStudyId) {
+                            // Project has a linked case study, redirect to it
+                            window.location.href = `case_study.html?caseId=${project.caseStudyId}`;
+                        } else {
+                            // No linked case study, try to load legacy content from project
+                            loadLegacyProjectCaseStudy(project, projectId);
+                        }
+                    } else {
+                        loadingState.classList.add('hidden');
+                        errorState.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading project: ", error);
+                    loadingState.classList.add('hidden');
+                    errorState.classList.remove('hidden');
+                });
+        } else {
+            loadingState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+        }
+        
+        // Function to load a case study from the caseStudies collection
+        function loadCaseStudy(id) {
+            db.ref(`caseStudies/${id}`).once('value')
+                .then(doc => {
+                    console.log('Debug: case study snapshot', doc.val());
+                    loadingState.classList.add('hidden');
+                    
+                    if (doc.exists()) {
+                        const caseStudy = doc.val();
+                        
+                        // Update page title
+                        document.title = caseStudy.projectTitle + " - Case Study";
+                        
+                        // Update hero section
+                        document.getElementById('projectTitle').textContent = caseStudy.projectTitle;
+                        document.getElementById('projectDescription').textContent = caseStudy.projectDescription || '';
+                        document.getElementById('projectImage').src = caseStudy.projectImageUrl;
+                        document.getElementById('projectImage').alt = caseStudy.projectTitle;
+                        
+                        // Update project details
+                        document.getElementById('projectCategory').textContent = caseStudy.projectCategory || '';
+                        document.getElementById('projectAchievement').textContent = caseStudy.projectAchievement || '';
+                        
+                        // Generate stars
+                        let stars = '';
+                        for (let i = 0; i < 5; i++) {
+                            if (i < (caseStudy.projectRating || 0)) {
+                                stars += '★';
+                            } else {
+                                stars += '☆';
+                            }
+                        }
+                        document.getElementById('projectRating').textContent = stars;
+                        
+                        // Format date
+                        if (caseStudy.createdAt) {
+                            const date = new Date(caseStudy.createdAt);
+                            document.getElementById('projectDate').textContent = date.toLocaleDateString();
+                        } else {
+                            document.getElementById('projectDate').textContent = 'Unknown';
+                        }
+                        
+                        // Render structured case study
+                        if (caseStudy.sections) {
+                            renderStructuredCaseStudy(caseStudy.sections);
+                            defaultContent.classList.add('hidden');
+                        } else if (caseStudy.content && caseStudy.content.trim() !== '') {
+                            // Use custom HTML content if available
+                            dynamicCaseStudyContent.innerHTML = caseStudy.content;
+                            defaultContent.classList.add('hidden');
+                        } else {
+                            // Use default content
+                            dynamicCaseStudyContent.innerHTML = '';
+                            defaultContent.classList.remove('hidden');
+                        }
+                        
+                        caseStudyContent.classList.remove('hidden');
+                    } else {
+                        errorState.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading case study: ", error);
+                    loadingState.classList.add('hidden');
+                    errorState.classList.remove('hidden');
+                });
+        }
+        
+        // Function to load legacy case study content from a project
+        function loadLegacyProjectCaseStudy(project, id) {
+            loadingState.classList.add('hidden');
+            
+            // Update page title
+            document.title = project.title + " - Case Study";
+            
+            // Update hero section
+            document.getElementById('projectTitle').textContent = project.title;
+            document.getElementById('projectDescription').textContent = project.description;
+            document.getElementById('projectImage').src = project.imageUrl;
+            document.getElementById('projectImage').alt = project.title;
+            
+            // Update project details
+            document.getElementById('projectCategory').textContent = project.category;
+            document.getElementById('projectAchievement').textContent = `${project.achievement} ${project.achievementMetric}`;
+            
+            // Generate stars
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < project.rating) {
+                    stars += '★';
+                } else {
+                    stars += '☆';
+                }
+            }
+            document.getElementById('projectRating').textContent = stars;
+            
+            // Format date
+            if (project.createdAt) {
+                const date = new Date(project.createdAt);
+                document.getElementById('projectDate').textContent = date.toLocaleDateString();
+            } else {
+                document.getElementById('projectDate').textContent = 'Unknown';
+            }
+            
+            // Check for custom content or structured sections
+            if (project.caseStudySections) {
+                // Render structured content
+                renderStructuredCaseStudy(project.caseStudySections);
+                defaultContent.classList.add('hidden');
+            } else if (project.caseStudyContent && project.caseStudyContent.trim() !== '') {
+                // Use legacy HTML content
+                dynamicCaseStudyContent.innerHTML = project.caseStudyContent;
+                defaultContent.classList.add('hidden');
+            } else {
+                // Use default content
+                dynamicCaseStudyContent.innerHTML = '';
+                defaultContent.classList.remove('hidden');
+            }
+            
+            caseStudyContent.classList.remove('hidden');
+        }
+        
+        // Function to render structured case study
+        function renderStructuredCaseStudy(sections) {
+            let html = '';
+            
+            // Render each enabled section
+            
+            // Hero Section already exists in the main template
+            
+            // Overview Section
+            if (sections.overview && sections.overview.enabled) {
+                let metricsHTML = '';
+                if (sections.overview.metrics) {
+                    const metrics = sections.overview.metrics.split('\n').filter(line => line.trim() !== '');
+                    metrics.forEach(metric => {
+                        const parts = metric.split(':');
+                        if (parts.length === 2) {
+                            metricsHTML += `
+                            <div class="bg-blue-50 p-4 rounded-lg text-center dark:bg-blue-900">
+                                <div class="text-sm text-gray-600 dark:text-gray-400">${parts[0].trim()}</div>
+                                <div class="text-3xl font-bold text-blue-600 dark:text-blue-300">${parts[1].trim()}</div>
+                            </div>`;
+                        }
+                    });
+                }
+                
+                html += `
+                <section id="overview" class="py-16 bg-white dark:bg-gray-800">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-4xl mx-auto">
+                            <h2 class="text-3xl font-bold text-center text-blue-700 mb-8 ghibli-font dark:text-blue-300">${sections.overview.title || 'Project Overview'}</h2>
+                            <p class="text-gray-700 mb-8 text-lg dark:text-gray-300">${sections.overview.summary || ''}</p>
+                            ${metricsHTML ? `
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                                ${metricsHTML}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // Problem Statement Section
+            if (sections.problem && sections.problem.enabled) {
+                html += `
+                <section id="problem" class="py-16 bg-gray-50 dark:bg-gray-900">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-4xl mx-auto">
+                            <h2 class="text-3xl font-bold text-center text-red-600 mb-8 ghibli-font dark:text-red-400">${sections.problem.title || 'Problem Statement'}</h2>
+                            <div class="bg-white p-8 rounded-xl shadow-lg dark:bg-gray-800">
+                                <p class="text-gray-700 text-lg dark:text-gray-300">${sections.problem.description || ''}</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // Process/Research Section
+            if (sections.process && sections.process.enabled) {
+                html += `
+                <section id="process" class="py-16 bg-white dark:bg-gray-800">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-4xl mx-auto">
+                            <h2 class="text-3xl font-bold text-center text-green-600 mb-8 ghibli-font dark:text-green-400">${sections.process.title || 'Research & Process'}</h2>
+                            <p class="text-gray-700 mb-8 text-lg dark:text-gray-300">${sections.process.description || ''}</p>
+                            ${sections.process.steps ? `
+                            <div class="space-y-6 mt-8">
+                                ${sections.process.steps.split('\n').filter(step => step.trim() !== '').map((step, index) => `
+                                <div class="flex">
+                                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-green-100 rounded-full text-green-700 text-xl font-bold dark:bg-green-900 dark:text-green-300">${index + 1}</div>
+                                    <div class="ml-4">
+                                        <p class="text-gray-700 dark:text-gray-300">${step}</p>
+                                    </div>
+                                </div>`).join('')}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // Showcase Section
+            if (sections.showcase && sections.showcase.enabled) {
+                html += `
+                <section id="showcase" class="py-16 bg-gray-50 dark:bg-gray-900">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-4xl mx-auto">
+                            <h2 class="text-3xl font-bold text-center text-purple-600 mb-8 ghibli-font dark:text-purple-400">${sections.showcase.title || 'Solution Showcase'}</h2>
+                            <p class="text-gray-700 mb-8 text-lg dark:text-gray-300">${sections.showcase.description || ''}</p>
+                            
+                            ${sections.showcase.features ? `
+                            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                                ${sections.showcase.features.split('\n').filter(feature => feature.trim() !== '').map(feature => `
+                                <div class="bg-white p-6 rounded-xl shadow-lg dark:bg-gray-800">
+                                    <div class="flex items-start">
+                                        <div class="bg-purple-100 p-3 rounded-full dark:bg-purple-900">
+                                            <i class="fas fa-check text-purple-600 dark:text-purple-300"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-gray-700 dark:text-gray-300">${feature}</p>
+                                        </div>
+                                    </div>
+                                </div>`).join('')}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // Reflection Section
+            if (sections.reflection && sections.reflection.enabled) {
+                html += `
+                <section id="reflection" class="py-16 bg-white dark:bg-gray-800">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-4xl mx-auto">
+                            <h2 class="text-3xl font-bold text-center text-blue-700 mb-8 ghibli-font dark:text-blue-300">${sections.reflection.title || 'Reflection & Learnings'}</h2>
+                            <div class="bg-blue-50 p-8 rounded-xl shadow-lg dark:bg-gray-700">
+                                <p class="text-gray-700 mb-6 text-lg dark:text-gray-300">${sections.reflection.content || ''}</p>
+                                ${sections.reflection.learnings ? `
+                                <h3 class="text-xl font-bold text-blue-600 mb-4 dark:text-blue-300">Key Learnings</h3>
+                                <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                                    ${sections.reflection.learnings.split('\n').filter(learning => learning.trim() !== '').map(learning => `
+                                    <li>${learning}</li>`).join('')}
+                                </ul>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // Gallery Slider Section
+            if (sections.gallery && sections.gallery.enabled && sections.gallery.images && sections.gallery.images.length) {
+                html += `
+                <section id="gallery" class="py-16 bg-gray-50 dark:bg-gray-900">
+                    <div class="container mx-auto px-6">
+                        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6 ghibli-font dark:text-gray-200">Image Gallery</h2>
+                        <div class="swiper-container gallery-swiper">
+                            <div class="swiper-wrapper">
+                                ${sections.gallery.images.map(rawUrl => {
+                                    // Detect Drive share link and convert to direct image URL
+                                    let srcUrl = rawUrl;
+                                    const match = rawUrl.match(/\/d\/([A-Za-z0-9_-]+)/);
+                                    if (match) {
+                                        srcUrl = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                                    }
+                                    return `<div class=\"swiper-slide\"><img src=\"${srcUrl}\" class=\"w-full h-96 object-cover rounded-lg\" /></div>`;
+                                }).join('')}
+                            </div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // Document/Slides Section
+            if (sections.document && sections.document.enabled && sections.document.url) {
+                // Prepare embed and download URLs for Google Drive
+                let embedUrl = sections.document.url;
+                let downloadUrl = sections.document.url;
+                const driveMatch = sections.document.url.match(/\/d\/([A-Za-z0-9_-]+)/);
+                if (driveMatch) {
+                    embedUrl = `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+                    downloadUrl = `https://drive.google.com/uc?export=download&id=${driveMatch[1]}`;
+                }
+                html += `
+                <section id="document" class="py-16 bg-white dark:bg-gray-800">
+                    <div class="container mx-auto px-6">
+                        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6 ghibli-font dark:text-gray-200">Document / Slides</h2>
+                        <div class="max-w-4xl mx-auto">
+                            <div class="overflow-hidden rounded-lg shadow-lg">
+                                <iframe src="${embedUrl}" class="w-full h-96" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                            <div class="text-center mt-4">
+                                <a href="${downloadUrl}" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800">Download Document</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>`;
+            }
+            
+            // YouTube Demo Video Section
+            if (sections.video && sections.video.enabled && sections.video.url) {
+                let vid = '';
+                if (sections.video.url.includes('watch?v=')) {
+                    vid = sections.video.url.split('v=')[1].split('&')[0];
+                } else if (sections.video.url.includes('youtu.be/')) {
+                    vid = sections.video.url.split('youtu.be/')[1].split('?')[0];
+                }
+                if (vid) {
+                    const embedUrl = `https://www.youtube.com/embed/${vid}`;
+                    html += `
+                    <section id="video" class="py-16 bg-gray-50 dark:bg-gray-900">
+                        <div class="container mx-auto px-6">
+                            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6 ghibli-font dark:text-gray-200">Demo Video</h2>
+                            <div class="max-w-4xl mx-auto overflow-hidden rounded-lg shadow-lg">
+                                <iframe src="${embedUrl}" class="w-full h-96" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </section>`;
+                }
+            }
+            
+            dynamicCaseStudyContent.innerHTML = html;
+            // Initialize Swiper for gallery if enabled
+            if (sections.gallery && sections.gallery.enabled && sections.gallery.images && sections.gallery.images.length) {
+                new Swiper('.gallery-swiper', {
+                    loop: true,
+                    autoplay: { delay: 3000, disableOnInteraction: false },
+                    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                    pagination: { el: '.swiper-pagination', clickable: true },
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                });
+            }
+        }
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Dark mode toggle
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
+</body>
+</html> 

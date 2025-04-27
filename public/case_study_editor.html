@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- Rich Text Editor -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f8ff;
+            color: #2a4365;
+        }
+        .ghibli-font {
+            font-family: 'Gochi Hand', cursive;
+        }
+        .dark-mode {
+            background-color: #1a365d;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #1e293b;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0;
+        }
+        .dark-mode .text-gray-700, .dark-mode .text-gray-600 {
+            color: #94a3b8;
+        }
+        .dark-mode input, .dark-mode textarea, .dark-mode select {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+        .section-preview {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .section-preview.active {
+            max-height: 1000px;
+        }
+        /* Notification popup styles */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 350px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .notification-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .notification-success {
+            background-color: #d1fae5;
+            border-left: 5px solid #10b981;
+            color: #065f46;
+        }
+        .notification-error {
+            background-color: #fee2e2;
+            border-left: 5px solid #ef4444;
+            color: #b91c1c;
+        }
+        .dark-mode .notification-success {
+            background-color: #064e3b;
+            color: #d1fae5;
+        }
+        .dark-mode .notification-error {
+            background-color: #7f1d1d;
+            color: #fee2e2;
+        }
+        /* Debug console styles */
+        .debug-console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            max-height: 200px;
+            background-color: rgba(0,0,0,0.8);
+            color: #10b981;
+            overflow-y: auto;
+            transition: height 0.3s ease;
+            font-family: monospace;
+            z-index: 1000;
+            padding: 0 10px;
+        }
+        .debug-console.show {
+            height: 200px;
+            padding: 10px;
+        }
+        .debug-console pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="min-h-screen transition-colors duration-300">
+    <!-- Add the notification popup container -->
+    <div id="notificationPopup" class="notification-popup">
+        <div class="flex items-start">
+            <div id="notificationIcon" class="mr-3 text-lg"></div>
+            <div>
+                <h3 id="notificationTitle" class="font-bold"></h3>
+                <p id="notificationMessage"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Debug console (hidden by default) -->
+    <div id="debugConsole" class="debug-console">
+        <pre id="debugContent"></pre>
+    </div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="fixed top-4 right-16 z-50">
+        <button id="darkModeToggle" class="bg-yellow-200 hover:bg-yellow-300 text-gray-800 rounded-full p-2 shadow-lg">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="w-full bg-white bg-opacity-90 shadow-sm z-40 dark:bg-gray-800 dark:bg-opacity-90">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="ghibli-font text-2xl text-blue-600 dark:text-blue-300">
+                    <a href="index.html"><span class="text-yellow-500">★</span> Case Study Editor</a>
+                </div>
+                <div class="flex space-x-8">
+                    <a href="admin.html" class="text-gray-800 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-300">Back to Admin</a>
+                    <a href="index.html" class="text-gray-800 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-300">View Portfolio</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-12 pt-20">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-8 dark:bg-gray-800">
+                <h1 class="text-3xl font-bold ghibli-font text-blue-700 dark:text-blue-300 mb-6">Case Study Editor</h1>
+                <p class="mb-6 text-gray-600 dark:text-gray-400">Enable or disable sections and customize your case study content.</p>
+                
+                <div id="projectInfoSection" class="mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Project Information</h2>
+                    <div class="mb-6">
+                        <label for="projectSelector" class="block text-gray-700 mb-2 font-bold dark:text-gray-300">Select Project</label>
+                        <select id="projectSelector" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">-- Select Project --</option>
+                            <!-- Projects will be loaded here -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="sectionControls" class="mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Enable/Disable Sections</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="heroSection" class="section-toggle mr-2" checked data-section="hero">
+                            <label for="heroSection" class="text-gray-700 dark:text-gray-300">Hero/Introduction</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="overviewSection" class="section-toggle mr-2" checked data-section="overview">
+                            <label for="overviewSection" class="text-gray-700 dark:text-gray-300">Overview</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="problemSection" class="section-toggle mr-2" checked data-section="problem">
+                            <label for="problemSection" class="text-gray-700 dark:text-gray-300">Problem Statement</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="processSection" class="section-toggle mr-2" checked data-section="process">
+                            <label for="processSection" class="text-gray-700 dark:text-gray-300">Process/Research</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="showcaseSection" class="section-toggle mr-2" checked data-section="showcase">
+                            <label for="showcaseSection" class="text-gray-700 dark:text-gray-300">Showcase</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="reflectionSection" class="section-toggle mr-2" checked data-section="reflection">
+                            <label for="reflectionSection" class="text-gray-700 dark:text-gray-300">Reflection</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="gallerySectionToggle" class="section-toggle mr-2" data-section="gallery">
+                            <label for="gallerySectionToggle" class="text-gray-700 dark:text-gray-300">Image Gallery</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="documentSectionToggle" class="section-toggle mr-2" data-section="document">
+                            <label for="documentSectionToggle" class="text-gray-700 dark:text-gray-300">Document / Slides</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="videoSectionToggle" class="section-toggle mr-2" data-section="video">
+                            <label for="videoSectionToggle" class="text-gray-700 dark:text-gray-300">Demo Video</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="caseStudyForm">
+                    <!-- Hero Section -->
+                    <div id="heroContent" class="section-container mb-8">
+                        <div class="bg-blue-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-blue-700 dark:text-blue-300">Hero/Introduction</h2>
+                                <button type="button" class="preview-toggle bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-lg text-sm dark:bg-blue-900 dark:text-blue-300" data-section="hero">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Hero Title</label>
+                                <input type="text" name="heroTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Hero Subtitle</label>
+                                <input type="text" name="heroSubtitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Introduction Text</label>
+                                <textarea name="heroText" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            </div>
+                            <div class="section-preview" id="hero-preview">
+                                <div class="border-t border-blue-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <h1 id="preview-heroTitle" class="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-2"></h1>
+                                        <h2 id="preview-heroSubtitle" class="text-xl text-blue-500 dark:text-blue-400 mb-3"></h2>
+                                        <p id="preview-heroText" class="text-gray-700 dark:text-gray-400"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Overview Section -->
+                    <div id="overviewContent" class="section-container mb-8">
+                        <div class="bg-green-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-green-700 dark:text-green-300">Overview</h2>
+                                <button type="button" class="preview-toggle bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg text-sm dark:bg-green-900 dark:text-green-300" data-section="overview">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Overview Title</label>
+                                <input type="text" name="overviewTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Overview Summary</label>
+                                <textarea name="overviewSummary" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Key Metrics (one per line)</label>
+                                <textarea name="overviewMetrics" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Metric Name: Value"></textarea>
+                            </div>
+                            <div class="section-preview" id="overview-preview">
+                                <div class="border-t border-green-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <h2 id="preview-overviewTitle" class="text-2xl font-bold text-green-600 dark:text-green-300 mb-2"></h2>
+                                        <p id="preview-overviewSummary" class="text-gray-700 dark:text-gray-400 mb-4"></p>
+                                        <div id="preview-overviewMetrics" class="grid grid-cols-2 gap-2">
+                                            <!-- Metrics will be displayed here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- More Section Templates Follow (Problem, Process, Showcase, Reflection) -->
+                    <!-- Adding just Problem Statement for brevity -->
+                    <div id="problemContent" class="section-container mb-8">
+                        <div class="bg-red-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-red-700 dark:text-red-300">Problem Statement</h2>
+                                <button type="button" class="preview-toggle bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded-lg text-sm dark:bg-red-900 dark:text-red-300" data-section="problem">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Problem Title</label>
+                                <input type="text" name="problemTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Problem Description</label>
+                                <textarea name="problemDescription" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            </div>
+                            <div class="section-preview" id="problem-preview">
+                                <div class="border-t border-red-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <h2 id="preview-problemTitle" class="text-2xl font-bold text-red-600 dark:text-red-300 mb-2"></h2>
+                                        <p id="preview-problemDescription" class="text-gray-700 dark:text-gray-400"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Process/Research Section -->
+                    <div id="processContent" class="section-container mb-8">
+                        <div class="bg-green-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-green-700 dark:text-green-300">Process/Research</h2>
+                                <button type="button" class="preview-toggle bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg text-sm dark:bg-green-900 dark:text-green-300" data-section="process">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Process Title</label>
+                                <input type="text" name="processTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Process Description</label>
+                                <textarea name="processDescription" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Process Steps (one per line)</label>
+                                <textarea name="processSteps" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Step 1: Research users"></textarea>
+                            </div>
+                            <div class="section-preview" id="process-preview">
+                                <div class="border-t border-green-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <h2 id="preview-processTitle" class="text-2xl font-bold text-green-600 dark:text-green-300 mb-2"></h2>
+                                        <p id="preview-processDescription" class="text-gray-700 dark:text-gray-400 mb-4"></p>
+                                        <div id="preview-processSteps" class="space-y-2">
+                                            <!-- Steps will be displayed here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Showcase Section -->
+                    <div id="showcaseContent" class="section-container mb-8">
+                        <div class="bg-purple-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-purple-700 dark:text-purple-300">Showcase</h2>
+                                <button type="button" class="preview-toggle bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded-lg text-sm dark:bg-purple-900 dark:text-purple-300" data-section="showcase">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Showcase Title</label>
+                                <input type="text" name="showcaseTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Showcase Description</label>
+                                <textarea name="showcaseDescription" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Key Features (one per line)</label>
+                                <textarea name="showcaseFeatures" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Feature 1: Interactive dashboard"></textarea>
+                            </div>
+                            <div class="section-preview" id="showcase-preview">
+                                <div class="border-t border-purple-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <h2 id="preview-showcaseTitle" class="text-2xl font-bold text-purple-600 dark:text-purple-300 mb-2"></h2>
+                                        <p id="preview-showcaseDescription" class="text-gray-700 dark:text-gray-400 mb-4"></p>
+                                        <div id="preview-showcaseFeatures" class="grid grid-cols-1 gap-2">
+                                            <!-- Features will be displayed here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Reflection Section -->
+                    <div id="reflectionContent" class="section-container mb-8">
+                        <div class="bg-blue-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-blue-700 dark:text-blue-300">Reflection</h2>
+                                <button type="button" class="preview-toggle bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-lg text-sm dark:bg-blue-900 dark:text-blue-300" data-section="reflection">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Reflection Title</label>
+                                <input type="text" name="reflectionTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Reflection Content</label>
+                                <textarea name="reflectionContent" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Key Learnings (one per line)</label>
+                                <textarea name="reflectionLearnings" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Learning 1: User feedback is critical"></textarea>
+                            </div>
+                            <div class="section-preview" id="reflection-preview">
+                                <div class="border-t border-blue-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <h2 id="preview-reflectionTitle" class="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-2"></h2>
+                                        <p id="preview-reflectionContent" class="text-gray-700 dark:text-gray-400 mb-4"></p>
+                                        <h3 class="text-lg font-bold text-blue-600 dark:text-blue-300 mb-2">Key Learnings</h3>
+                                        <ul id="preview-reflectionLearnings" class="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-400">
+                                            <!-- Learnings will be displayed here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Section -->
+                    <div id="galleryContent" class="section-container mb-8" style="display:none;">
+                        <div class="bg-gray-50 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Image Gallery</h2>
+                                <button type="button" class="preview-toggle bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-lg text-sm dark:bg-gray-600 dark:text-gray-300" data-section="gallery">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Image URLs (one per line, max 10)</label>
+                                <textarea name="galleryImages" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="https://example.com/slide1.jpg"></textarea>
+                            </div>
+                            <div class="section-preview" id="gallery-preview">
+                                <div class="border-t border-gray-200 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <ul id="preview-galleryImages" class="list-disc pl-6 text-gray-700 dark:text-gray-300"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Document Section -->
+                    <div id="documentContent" class="section-container mb-8">
+                        <div class="bg-gray-100 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Document / Slides</h2>
+                                <button type="button" class="preview-toggle bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-lg text-sm dark:bg-gray-600 dark:text-gray-300" data-section="document">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">Document URL</label>
+                                <input type="text" name="documentUrl" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Embed URL or PDF link">
+                            </div>
+                            <div class="section-preview" id="document-preview">
+                                <div class="border-t border-gray-300 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <iframe id="preview-documentIframe" src="" class="w-full h-64" frameborder="0"></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Section -->
+                    <div id="videoContent" class="section-container mb-8">
+                        <div class="bg-gray-100 p-6 rounded-xl dark:bg-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Demo Video</h2>
+                                <button type="button" class="preview-toggle bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-lg text-sm dark:bg-gray-600 dark:text-gray-300" data-section="video">
+                                    Preview <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2 dark:text-gray-300">YouTube URL</label>
+                                <input type="text" name="videoUrl" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="YouTube video URL">
+                            </div>
+                            <div class="section-preview" id="video-preview">
+                                <div class="border-t border-gray-300 dark:border-gray-600 pt-4 mt-4">
+                                    <h3 class="text-lg font-bold mb-2 text-gray-700 dark:text-gray-300">Preview</h3>
+                                    <div class="bg-white p-4 rounded-lg dark:bg-gray-800">
+                                        <iframe id="preview-videoIframe" src="" class="w-full h-64" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button type="button" id="cancelBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition hover:scale-105">
+                            Save Case Study
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBr8ZruVUy_bHlnQRR-J_D5swyKQobkCWg",
+            authDomain: "projectportfolio-29467.firebaseapp.com",
+            databaseURL: "https://projectportfolio-29467-default-rtdb.firebaseio.com",
+            projectId: "projectportfolio-29467",
+            storageBucket: "projectportfolio-29467.appspot.com",
+            messagingSenderId: "506713176316",
+            appId: "1:506713176316:web:f2dea75b7c84e4fc20bdad"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // DOM Elements
+        const projectSelector = document.getElementById('projectSelector');
+        const caseStudyForm = document.getElementById('caseStudyForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const sectionToggles = document.querySelectorAll('.section-toggle');
+        const previewToggles = document.querySelectorAll('.preview-toggle');
+
+        // Auth state observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loadProjects();
+            } else {
+                window.location.href = 'admin.html'; // Redirect to admin login if not authenticated
+            }
+        });
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const caseStudyId = urlParams.get('caseId');
+        const projectId = urlParams.get('id');
+        
+        // Load projects for selection
+        function loadProjects() {
+            db.ref('projects').orderByChild('title').once('value')
+                .then(snapshot => {
+                    projectSelector.innerHTML = '<option value="">-- Select Project --</option>';
+                    
+                    snapshot.forEach(childSnap => {
+                        const project = childSnap.val();
+                        const option = document.createElement('option');
+                        option.value = childSnap.key;
+                        option.textContent = project.title;
+                        projectSelector.appendChild(option);
+                    });
+                    
+                    // If we have a case study ID, load that case study
+                    if (caseStudyId) {
+                        loadCaseStudyFromCaseStudiesCollection(caseStudyId);
+                    }
+                    // If we have a project ID, select it and check if it has a case study
+                    else if (projectId) {
+                        projectSelector.value = projectId;
+                        checkForExistingCaseStudy(projectId);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading projects: ", error);
+                    alert("Error loading projects. Please try again.");
+                });
+        }
+
+        // Check if a project has an existing case study
+        function checkForExistingCaseStudy(projectId) {
+            db.ref(`projects/${projectId}`).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const project = snapshot.val();
+                        if (project.caseStudyId) {
+                            loadCaseStudyFromCaseStudiesCollection(project.caseStudyId);
+                        } else {
+                            caseStudyForm.reset();
+                            sectionToggles.forEach(toggle => toggleSectionVisibility(toggle.dataset.section, toggle.checked));
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking for existing case study: ", error);
+                    alert("Error checking for existing case study. Please try again.");
+                });
+        }
+
+        // Load case study from caseStudies collection
+        function loadCaseStudyFromCaseStudiesCollection(caseStudyId) {
+            db.ref(`caseStudies/${caseStudyId}`).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const caseStudy = snapshot.val();
+                        
+                        // Set project selector to the associated project
+                        if (caseStudy.projectId) {
+                            projectSelector.value = caseStudy.projectId;
+                        }
+                        
+                        // Fill form with case study data
+                        if (caseStudy.sections) {
+                            const sections = caseStudy.sections;
+                            
+                            // Enable/disable sections based on saved data
+                            sectionToggles.forEach(toggle => {
+                                const section = toggle.dataset.section;
+                                toggle.checked = sections[section] ? sections[section].enabled : false;
+                                toggleSectionVisibility(section, toggle.checked);
+                            });
+                            
+                            // Fill in section content
+                            if (sections.hero) {
+                                document.querySelector('[name="heroTitle"]').value = sections.hero.headline || '';
+                                document.querySelector('[name="heroSubtitle"]').value = sections.hero.subheading || '';
+                                document.querySelector('[name="heroText"]').value = sections.hero.text || '';
+                            }
+                            
+                            if (sections.overview) {
+                                document.querySelector('[name="overviewTitle"]').value = sections.overview.title || 'Project Overview';
+                                document.querySelector('[name="overviewSummary"]').value = sections.overview.summary || '';
+                                document.querySelector('[name="overviewMetrics"]').value = sections.overview.outcomes || '';
+                            }
+                            
+                            if (sections.problem) {
+                                document.querySelector('[name="problemTitle"]').value = sections.problem.title || 'Problem Statement';
+                                document.querySelector('[name="problemDescription"]').value = 
+                                    (sections.problem.challenge || '') + '\n\n' + (sections.problem.goals || '');
+                            }
+                            
+                            if (sections.process) {
+                                document.querySelector('[name="processTitle"]').value = sections.process.title || 'Research & Process';
+                                document.querySelector('[name="processDescription"]').value = 
+                                    (sections.process.research || '') + '\n\n' + (sections.process.insights || '');
+                                document.querySelector('[name="processSteps"]').value = sections.process.steps || '';
+                            }
+                            
+                            if (sections.showcase) {
+                                document.querySelector('[name="showcaseTitle"]').value = sections.showcase.title || 'Solution Showcase';
+                                document.querySelector('[name="showcaseDescription"]').value = sections.showcase.solution || '';
+                                document.querySelector('[name="showcaseFeatures"]').value = sections.showcase.assets || '';
+                            }
+                            
+                            if (sections.reflection) {
+                                document.querySelector('[name="reflectionTitle"]').value = sections.reflection.title || 'Reflection';
+                                document.querySelector('[name="reflectionContent"]').value = sections.reflection.lessons || '';
+                                document.querySelector('[name="reflectionLearnings"]').value = sections.reflection.improvements || '';
+                            }
+                            
+                            // Populate Document & Video fields
+                            if (sections.document) {
+                                document.querySelector('[name="documentUrl"]').value = sections.document.url || '';
+                            }
+                            if (sections.video) {
+                                document.querySelector('[name="videoUrl"]').value = sections.video.url || '';
+                            }
+                        } else {
+                            resetForm();
+                        }
+                    } else {
+                        alert("Case study not found.");
+                        resetForm();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading case study data: ", error);
+                    alert("Error loading case study data. Please try again.");
+                });
+        }
+
+        // Project selection change
+        projectSelector.addEventListener('change', function() {
+            const selectedProjectId = this.value;
+            if (selectedProjectId) {
+                checkForExistingCaseStudy(selectedProjectId);
+            } else {
+                resetForm();
+            }
+        });
+
+        // Reset form
+        function resetForm() {
+            caseStudyForm.reset();
+            
+            // Enable all sections by default
+            sectionToggles.forEach(toggle => {
+                toggle.checked = true;
+                toggleSectionVisibility(toggle.dataset.section, true);
+            });
+        }
+
+        // Toggle section visibility
+        function toggleSectionVisibility(section, isVisible) {
+            const sectionElement = document.getElementById(section + 'Content');
+            if (sectionElement) {
+                sectionElement.style.display = isVisible ? 'block' : 'none';
+            }
+        }
+
+        // Section toggle event listeners
+        sectionToggles.forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const section = this.dataset.section;
+                toggleSectionVisibility(section, this.checked);
+                if (section === 'gallery') {
+                    document.getElementById('galleryContent').style.display = this.checked ? 'block' : 'none';
+                }
+            });
+        });
+
+        // Preview toggle event listeners
+        previewToggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const section = this.dataset.section;
+                const preview = document.getElementById(section + '-preview');
+                preview.classList.toggle('active');
+                
+                // Update preview content
+                updatePreview(section);
+            });
+        });
+
+        // Update preview content
+        function updatePreview(section) {
+            if (section === 'hero') {
+                document.getElementById('preview-heroTitle').textContent = document.querySelector('[name="heroTitle"]').value;
+                document.getElementById('preview-heroSubtitle').textContent = document.querySelector('[name="heroSubtitle"]').value;
+                document.getElementById('preview-heroText').textContent = document.querySelector('[name="heroText"]').value;
+            } else if (section === 'overview') {
+                document.getElementById('preview-overviewTitle').textContent = document.querySelector('[name="overviewTitle"]').value;
+                document.getElementById('preview-overviewSummary').textContent = document.querySelector('[name="overviewSummary"]').value;
+                
+                // Handle metrics
+                const metricsContainer = document.getElementById('preview-overviewMetrics');
+                metricsContainer.innerHTML = '';
+                
+                const metricsText = document.querySelector('[name="overviewMetrics"]').value;
+                const metrics = metricsText.split('\n').filter(line => line.trim() !== '');
+                
+                metrics.forEach(metric => {
+                    const parts = metric.split(':');
+                    if (parts.length === 2) {
+                        const div = document.createElement('div');
+                        div.className = 'bg-green-50 p-2 rounded dark:bg-green-900';
+                        div.innerHTML = `
+                            <div class="font-bold">${parts[0].trim()}</div>
+                            <div class="text-xl">${parts[1].trim()}</div>
+                        `;
+                        metricsContainer.appendChild(div);
+                    }
+                });
+            } else if (section === 'problem') {
+                document.getElementById('preview-problemTitle').textContent = document.querySelector('[name="problemTitle"]').value;
+                document.getElementById('preview-problemDescription').textContent = document.querySelector('[name="problemDescription"]').value;
+            } else if (section === 'process') {
+                document.getElementById('preview-processTitle').textContent = document.querySelector('[name="processTitle"]').value;
+                document.getElementById('preview-processDescription').textContent = document.querySelector('[name="processDescription"]').value;
+                
+                // Handle steps
+                const stepsContainer = document.getElementById('preview-processSteps');
+                stepsContainer.innerHTML = '';
+                
+                const stepsText = document.querySelector('[name="processSteps"]').value;
+                const steps = stepsText.split('\n').filter(line => line.trim() !== '');
+                
+                steps.forEach((step, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-start';
+                    div.innerHTML = `
+                        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-green-100 rounded-full text-green-700 text-xl font-bold">${index + 1}</div>
+                        <div class="ml-4">
+                            <p class="text-gray-700">${step}</p>
+                        </div>
+                    `;
+                    stepsContainer.appendChild(div);
+                });
+            } else if (section === 'showcase') {
+                document.getElementById('preview-showcaseTitle').textContent = document.querySelector('[name="showcaseTitle"]').value;
+                document.getElementById('preview-showcaseDescription').textContent = document.querySelector('[name="showcaseDescription"]').value;
+                
+                // Handle features
+                const featuresContainer = document.getElementById('preview-showcaseFeatures');
+                featuresContainer.innerHTML = '';
+                
+                const featuresText = document.querySelector('[name="showcaseFeatures"]').value;
+                const features = featuresText.split('\n').filter(line => line.trim() !== '');
+                
+                features.forEach(feature => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-start p-2 bg-purple-50 rounded dark:bg-purple-900';
+                    div.innerHTML = `
+                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-purple-100 rounded-full text-purple-700 dark:bg-purple-800 dark:text-purple-300">
+                            <i class="fas fa-check text-sm"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-gray-700 dark:text-gray-400">${feature}</p>
+                        </div>
+                    `;
+                    featuresContainer.appendChild(div);
+                });
+            } else if (section === 'reflection') {
+                document.getElementById('preview-reflectionTitle').textContent = document.querySelector('[name="reflectionTitle"]').value;
+                document.getElementById('preview-reflectionContent').textContent = document.querySelector('[name="reflectionContent"]').value;
+                
+                // Handle learnings
+                const learningsContainer = document.getElementById('preview-reflectionLearnings');
+                learningsContainer.innerHTML = '';
+                
+                const learningsText = document.querySelector('[name="reflectionLearnings"]').value;
+                const learnings = learningsText.split('\n').filter(line => line.trim() !== '');
+                
+                learnings.forEach(learning => {
+                    const li = document.createElement('li');
+                    li.textContent = learning;
+                    learningsContainer.appendChild(li);
+                });
+            } else if (section === 'gallery') {
+                const list = document.getElementById('preview-galleryImages');
+                list.innerHTML = '';
+                document.querySelector('[name="galleryImages"]').value.split('\n')
+                    .filter(line => line.trim())
+                    .slice(0,10)
+                    .forEach(url => {
+                        const li = document.createElement('li');
+                        li.textContent = url;
+                        list.appendChild(li);
+                    });
+            }
+        }
+
+        // Debug logger function
+        function debugLog(message, data = null) {
+            const debugConsole = document.getElementById('debugConsole');
+            const debugContent = document.getElementById('debugContent');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            let logMessage = `[${timestamp}] ${message}`;
+            
+            if (data) {
+                try {
+                    logMessage += "\n" + JSON.stringify(data, null, 2);
+                } catch (e) {
+                    logMessage += "\n[Object cannot be serialized]";
+                }
+            }
+            
+            debugContent.innerHTML += logMessage + "\n\n";
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            
+            // Show debug console if hidden
+            if (!debugConsole.classList.contains('show')) {
+                debugConsole.classList.add('show');
+            }
+            
+            // Log to console as well
+            console.log(message, data);
+        }
+        
+        // Show notification popup
+        function showNotification(type, title, message, duration = 5000) {
+            const popup = document.getElementById('notificationPopup');
+            const iconElement = document.getElementById('notificationIcon');
+            const titleElement = document.getElementById('notificationTitle');
+            const messageElement = document.getElementById('notificationMessage');
+            
+            // Remove all classes first
+            popup.classList.remove('notification-success', 'notification-error');
+            
+            // Set content
+            titleElement.textContent = title;
+            messageElement.textContent = message;
+            
+            if (type === 'success') {
+                popup.classList.add('notification-success');
+                iconElement.innerHTML = '<i class="fas fa-check-circle"></i>';
+            } else {
+                popup.classList.add('notification-error');
+                iconElement.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            }
+            
+            // Show popup
+            popup.classList.add('show');
+            
+            // Hide after duration
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, duration);
+        }
+        
+        // Toggle debug console with keyboard shortcut (Ctrl+D)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                document.getElementById('debugConsole').classList.toggle('show');
+            }
+        });
+
+        // Form submission - update with enhanced notifications
+        caseStudyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const selectedProjectId = projectSelector.value;
+            if (!selectedProjectId) {
+                showNotification('error', 'Error', 'Please select a project first.');
+                return;
+            }
+            
+            debugLog('Form submission started', { projectId: selectedProjectId });
+            
+            // Show a processing notification
+            showNotification('success', 'Processing', 'Creating your case study...', 10000);
+            
+            // Gather form data
+            const formData = {
+                sections: {}
+            };
+            
+            // Get enabled/disabled status for each section
+            sectionToggles.forEach(toggle => {
+                const section = toggle.dataset.section;
+                formData.sections[section] = { enabled: toggle.checked };
+            });
+            
+            // Get content for each section
+            if (formData.sections.hero && formData.sections.hero.enabled) {
+                formData.sections.hero.headline = document.querySelector('[name="heroTitle"]').value;
+                formData.sections.hero.subheading = document.querySelector('[name="heroSubtitle"]').value;
+                formData.sections.hero.text = document.querySelector('[name="heroText"]').value;
+            }
+            
+            if (formData.sections.overview && formData.sections.overview.enabled) {
+                formData.sections.overview.title = document.querySelector('[name="overviewTitle"]').value;
+                formData.sections.overview.summary = document.querySelector('[name="overviewSummary"]').value;
+                formData.sections.overview.outcomes = document.querySelector('[name="overviewMetrics"]').value;
+            }
+            
+            if (formData.sections.problem && formData.sections.problem.enabled) {
+                formData.sections.problem.title = document.querySelector('[name="problemTitle"]').value;
+                
+                // Split the problem description into challenge and goals if it contains multiple paragraphs
+                const problemText = document.querySelector('[name="problemDescription"]').value;
+                const problemParagraphs = problemText.split('\n\n').filter(p => p.trim() !== '');
+                
+                if (problemParagraphs.length > 1) {
+                    formData.sections.problem.challenge = problemParagraphs[0];
+                    formData.sections.problem.goals = problemParagraphs.slice(1).join('\n\n');
+                } else {
+                    formData.sections.problem.challenge = problemText;
+                    formData.sections.problem.goals = '';
+                }
+            }
+            
+            if (formData.sections.process && formData.sections.process.enabled) {
+                formData.sections.process.title = document.querySelector('[name="processTitle"]').value;
+                
+                // Split the process description into research and insights if it contains multiple paragraphs
+                const processText = document.querySelector('[name="processDescription"]').value;
+                const processParagraphs = processText.split('\n\n').filter(p => p.trim() !== '');
+                
+                if (processParagraphs.length > 1) {
+                    formData.sections.process.research = processParagraphs[0];
+                    formData.sections.process.insights = processParagraphs.slice(1).join('\n\n');
+                } else {
+                    formData.sections.process.research = processText;
+                    formData.sections.process.insights = '';
+                }
+                
+                formData.sections.process.steps = document.querySelector('[name="processSteps"]').value;
+            }
+            
+            if (formData.sections.showcase && formData.sections.showcase.enabled) {
+                formData.sections.showcase.title = document.querySelector('[name="showcaseTitle"]').value;
+                formData.sections.showcase.solution = document.querySelector('[name="showcaseDescription"]').value;
+                formData.sections.showcase.assets = document.querySelector('[name="showcaseFeatures"]').value;
+            }
+            
+            if (formData.sections.reflection && formData.sections.reflection.enabled) {
+                formData.sections.reflection.title = document.querySelector('[name="reflectionTitle"]').value;
+                formData.sections.reflection.lessons = document.querySelector('[name="reflectionContent"]').value;
+                formData.sections.reflection.improvements = document.querySelector('[name="reflectionLearnings"]').value;
+            }
+            
+            // Gather Document & Video inputs
+            if (formData.sections.document && formData.sections.document.enabled) {
+                formData.sections.document.url = document.querySelector('[name="documentUrl"]').value;
+            }
+            if (formData.sections.video && formData.sections.video.enabled) {
+                formData.sections.video.url = document.querySelector('[name="videoUrl"]').value;
+            }
+            
+            // Gather Gallery inputs
+            if (formData.sections.gallery && formData.sections.gallery.enabled) {
+                formData.sections.gallery.images = document.querySelector('[name="galleryImages"]').value.trim()
+                    .split('\n').slice(0,10).map(url => url.trim()).filter(url => url);
+            }
+            
+            // Generate HTML from structured data
+            const html = generateHTML(formData);
+            debugLog('Generated HTML', { length: html.length });
+            
+            // Get project details to include in the case study
+            db.ref(`projects/${selectedProjectId}`).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const project = snapshot.val();
+                        debugLog('Project data retrieved', { projectTitle: project.title });
+                        
+                        // Check if we're updating an existing case study or creating a new one
+                        if (caseStudyId) {
+                            debugLog('Updating existing case study', { caseStudyId });
+                            // Update existing case study
+                            db.ref(`caseStudies/${caseStudyId}/sections`).update(formData.sections)
+                                .then(() => {
+                                    showNotification('success', 'Success!', 'Case study updated successfully.');
+                                    debugLog('Case study updated successfully');
+                                    
+                                    // Redirect after a delay
+                                    setTimeout(() => {
+                                        window.location.href = 'admin.html';
+                                    }, 2000);
+                                })
+                                .catch(error => {
+                                    showNotification('error', 'Update Failed', `Error: ${error.message}`);
+                                    debugLog('Error updating case study', { error: error.message });
+                                });
+                        } else {
+                            // Check if the project already has a case study in the caseStudies collection
+                            if (project.caseStudyId) {
+                                debugLog('Project has existing case study', { projectCaseStudyId: project.caseStudyId });
+                                // Update existing case study
+                                db.ref(`caseStudies/${project.caseStudyId}/sections`).update(formData.sections)
+                                    .then(() => {
+                                        showNotification('success', 'Success!', 'Case study updated successfully.');
+                                        debugLog('Existing case study updated successfully');
+                                        
+                                        // Redirect after a delay
+                                        setTimeout(() => {
+                                            window.location.href = 'admin.html';
+                                        }, 2000);
+                                    })
+                                    .catch(error => {
+                                        showNotification('error', 'Update Failed', `Error: ${error.message}`);
+                                        debugLog('Error updating existing case study', { error: error.message });
+                                    });
+                            } else {
+                                debugLog('Creating new case study');
+                                // Create a new case study in the caseStudies collection
+                                const newCaseStudy = {
+                                    projectId: selectedProjectId,
+                                    projectTitle: project.title,
+                                    projectDescription: project.description,
+                                    projectImageUrl: project.imageUrl,
+                                    projectCategory: project.category,
+                                    projectRating: project.rating,
+                                    projectAchievement: project.achievement ? `${project.achievement} ${project.achievementMetric || ''}` : '',
+                                    sections: formData.sections,
+                                    content: html,
+                                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                                };
+                                
+                                debugLog('New case study data prepared', { projectTitle: newCaseStudy.projectTitle });
+                                
+                                db.ref('caseStudies').push(newCaseStudy)
+                                    .then(docRef => {
+                                        debugLog('Case study document created', { newCaseStudyId: docRef.key });
+                                        // Update the project with a reference to the case study
+                                        db.ref(`projects/${selectedProjectId}/hasCaseStudy`).set(true);
+                                        db.ref(`projects/${selectedProjectId}/caseStudyId`).set(docRef.key);
+                                        db.ref(`projects/${selectedProjectId}/updatedAt`).set(firebase.database.ServerValue.TIMESTAMP);
+                                        showNotification('success', 'Success!', 'Case study created successfully.');
+                                        debugLog('Project updated with case study reference');
+                                        
+                                        // Redirect after a delay
+                                        setTimeout(() => {
+                                            window.location.href = 'admin.html';
+                                        }, 2000);
+                                    })
+                                    .catch(error => {
+                                        showNotification('error', 'Partial Success', 'Case study created but failed to update project reference.');
+                                        debugLog('Error updating project reference', { error: error.message });
+                                        
+                                        // Still redirect after a delay
+                                        setTimeout(() => {
+                                            window.location.href = 'admin.html';
+                                        }, 3000);
+                                    });
+                            }
+                        }
+                    } else {
+                        showNotification('error', 'Project Not Found', 'Please select a valid project.');
+                        debugLog('Project not found', { projectId: selectedProjectId });
+                    }
+                })
+                .catch(error => {
+                    showNotification('error', 'Error', `Error getting project details: ${error.message}`);
+                    debugLog('Error getting project details', { error: error.message });
+                });
+        });
+
+        // Generate HTML from structured data
+        function generateHTML(data) {
+            let html = '';
+            const sections = data.sections;
+            
+            // Hero Section
+            if (sections.hero && sections.hero.enabled) {
+                html += `
+                <section class="page-section cloud-bg flex items-center justify-center">
+                    <div class="container mx-auto px-6">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 ghibli-text-blue ghibli-font">${sections.hero.headline}</h1>
+                        <h2 class="text-2xl md:text-3xl mb-6 ghibli-text-green">${sections.hero.subheading}</h2>
+                        <p class="text-lg mb-8 text-gray-700">${sections.hero.text}</p>
+                    </div>
+                </section>`;
+            }
+            
+            // Overview Section
+            if (sections.overview && sections.overview.enabled) {
+                let metricsHTML = '';
+                const metrics = sections.overview.outcomes.split('\n').filter(line => line.trim() !== '');
+                
+                metrics.forEach(metric => {
+                    const parts = metric.split(':');
+                    if (parts.length === 2) {
+                        metricsHTML += `
+                        <div class="bg-green-50 p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-600">${parts[0].trim()}</div>
+                            <div class="text-3xl font-bold ghibli-text-blue">${parts[1].trim()}</div>
+                        </div>`;
+                    }
+                });
+                
+                html += `
+                <section class="bg-white p-8 rounded-xl shadow-lg my-8">
+                    <h2 class="text-3xl font-bold text-center ghibli-text-green handwriting">${sections.overview.title}</h2>
+                    <p class="text-gray-700 mb-6">${sections.overview.summary}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${metricsHTML}
+                    </div>
+                </section>`;
+            }
+            
+            // Problem Section
+            if (sections.problem && sections.problem.enabled) {
+                html += `
+                <section class="bg-yellow-50 p-8 rounded-xl shadow-lg my-8">
+                    <h2 class="text-3xl font-bold text-center ghibli-text-red handwriting">${sections.problem.title}</h2>
+                    <div class="mt-6">
+                        <h3 class="text-xl font-bold ghibli-text-red mb-3">Challenge</h3>
+                        <p class="text-gray-700 mb-6">${sections.problem.challenge || ''}</p>
+                        
+                        ${sections.problem.goals ? `
+                        <h3 class="text-xl font-bold ghibli-text-red mb-3">Goals</h3>
+                        <p class="text-gray-700">${sections.problem.goals}</p>
+                        ` : ''}
+                    </div>
+                </section>`;
+            }
+            
+            // Process Section
+            if (sections.process && sections.process.enabled) {
+                let stepsHTML = '';
+                if (sections.process.steps) {
+                    const steps = sections.process.steps.split('\n').filter(step => step.trim() !== '');
+                    stepsHTML = `
+                        <h3 class="text-xl font-bold ghibli-text-green mb-3 mt-6">Process Steps</h3>
+                        <div class="space-y-4">
+                            ${steps.map((step, index) => `
+                            <div class="flex">
+                                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green-100 rounded-full text-green-700 text-xl font-bold">${index + 1}</div>
+                                <div class="ml-4">
+                                    <p class="text-gray-700">${step}</p>
+                                </div>
+                            </div>`).join('')}
+                        </div>
+                    `;
+                }
+                
+                html += `
+                <section class="bg-green-50 p-8 rounded-xl shadow-lg my-8">
+                    <h2 class="text-3xl font-bold text-center ghibli-text-green handwriting">${sections.process.title}</h2>
+                    <div class="mt-6">
+                        <h3 class="text-xl font-bold ghibli-text-green mb-3">Research</h3>
+                        <p class="text-gray-700 mb-6">${sections.process.research || ''}</p>
+                        
+                        ${sections.process.insights ? `
+                        <h3 class="text-xl font-bold ghibli-text-green mb-3">Key Insights</h3>
+                        <p class="text-gray-700 mb-6">${sections.process.insights}</p>
+                        ` : ''}
+                        
+                        ${stepsHTML}
+                    </div>
+                </section>`;
+            }
+            
+            // Showcase Section
+            if (sections.showcase && sections.showcase.enabled) {
+                let assetsHTML = '';
+                if (sections.showcase.assets) {
+                    const assets = sections.showcase.assets.split('\n').filter(asset => asset.trim() !== '');
+                    if (assets.length > 0) {
+                        assetsHTML = `
+                            <h3 class="text-xl font-bold ghibli-text-purple mb-3 mt-6">Key Features</h3>
+                            <ul class="list-disc pl-6 space-y-2">
+                                ${assets.map(asset => `<li class="text-gray-700">${asset}</li>`).join('')}
+                            </ul>
+                        `;
+                    }
+                }
+                
+                html += `
+                <section class="bg-purple-50 p-8 rounded-xl shadow-lg my-8">
+                    <h2 class="text-3xl font-bold text-center ghibli-text-purple handwriting">${sections.showcase.title}</h2>
+                    <p class="text-gray-700 mt-6">${sections.showcase.solution || ''}</p>
+                    ${assetsHTML}
+                </section>`;
+            }
+            
+            // Reflection Section
+            if (sections.reflection && sections.reflection.enabled) {
+                let learningsHTML = '';
+                if (sections.reflection.improvements) {
+                    const learnings = sections.reflection.improvements.split('\n').filter(learning => learning.trim() !== '');
+                    if (learnings.length > 0) {
+                        learningsHTML = `
+                            <h3 class="text-xl font-bold ghibli-text-blue mb-3 mt-6">Future Improvements</h3>
+                            <ul class="list-disc pl-6 space-y-2">
+                                ${learnings.map(learning => `<li class="text-gray-700">${learning}</li>`).join('')}
+                            </ul>
+                        `;
+                    }
+                }
+                
+                html += `
+                <section class="bg-blue-50 p-8 rounded-xl shadow-lg my-8">
+                    <h2 class="text-3xl font-bold text-center ghibli-text-blue handwriting">${sections.reflection.title}</h2>
+                    <p class="text-gray-700 mt-6">${sections.reflection.lessons || ''}</p>
+                    ${learningsHTML}
+                </section>`;
+            }
+            
+            return html;
+        }
+
+        // Cancel button
+        cancelBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to cancel? All unsaved changes will be lost.")) {
+                window.location.href = 'admin.html';
+            }
+        });
+
+        // Dark mode toggle
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,16 @@
+{
+  "storage": {
+    "rules": "frontend/storage.rules"
+  },
+  "database": {
+    "rules": "frontend/database.rules.json"
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
