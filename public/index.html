@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghibli-Inspired Product Portfolio</title>
+    <title>Management Consultant Portfolio | Product Journey</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="carousel.css">
+    <script src="carousel.js"></script>
+    <script src="swiper-carousel.js"></script>
     <style>
         body {
             font-family: 'Nunito', sans-serif;
@@ -172,7 +178,74 @@
         .dark-mode .dot.active {
             background-color: #9ca3af;
         }
+        /* Swiper styles for the magical scenery slideshow */
+        .swiper-magical {
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .swiper-slide {
+            position: relative;
+        }
+        
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .swiper-pagination-bullet {
+            width: 10px;
+            height: 10px;
+            background: #d1d5db;
+            opacity: 0.7;
+        }
+        
+        .swiper-pagination-bullet-active {
+            background: #3b82f6;
+            opacity: 1;
+        }
+        
+        .swiper-button-next, 
+        .swiper-button-prev {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            backdrop-filter: blur(3px);
+            transition: all 0.3s;
+        }
+        
+        .swiper-button-next:after, 
+        .swiper-button-prev:after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .swiper-button-next:hover, 
+        .swiper-button-prev:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .dark-mode .swiper-pagination-bullet {
+            background: #4b5563;
+        }
+        
+        .dark-mode .swiper-pagination-bullet-active {
+            background: #60a5fa;
+        }
+        
+        /* Add this to hide any edit buttons that might be dynamically added */
+        .edit-inline-btn, .edit-section-btn {
+            display: none !important;
+        }
     </style>
+    <link rel="stylesheet" href="edit-disable.css">
 </head>
 <body class="transition-colors duration-300">
     <!-- Dark Mode Toggle -->
@@ -181,7 +254,6 @@
             <i class="fas fa-moon"></i>
         </button>
     </div>
-    <script src="script.js"></script>
 
     <!-- Navigation -->
     <nav class="fixed w-full bg-white bg-opacity-90 shadow-sm z-40 dark:bg-gray-800 dark:bg-opacity-90">
@@ -220,7 +292,6 @@
 
     <!-- Hero Section -->
     <section id="hero" class="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden pt-16 dark:bg-gray-900">
-        <button class="edit-section-btn" data-section="hero" style="display:none;position:absolute;top:1rem;right:1rem;background:#38a169;color:white;padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.875rem;z-index:10">Edit Hero</button>
         <div class="absolute top-20 right-20">
             <div class="soot-sprite floating"></div>
         </div>
@@ -248,7 +319,6 @@
 
     <!-- About Section -->
     <section id="about" class="py-20 bg-white dark:bg-gray-800" style="position:relative;">
-        <button class="edit-section-btn" data-section="about" style="display:none;position:absolute;top:1rem;right:1rem;background:#38a169;color:white;padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.875rem;z-index:10">Edit About</button>
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="ghibli-font text-4xl text-center mb-16 text-blue-700 dark:text-blue-300">
                 <span class="border-b-4 border-yellow-400 pb-2">My Story</span>
@@ -258,8 +328,8 @@
                 <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10 relative">
                     <div class="bg-blue-100 rounded-3xl p-6 shadow-xl dark:bg-gray-700">
                         <div class="relative">
-                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
-                                 alt="Profile illustration" 
+                            <img src="images/IMG_20230307_172356-EDIT.jpg" 
+                                 alt="Profile at Indian Institute of Management" 
                                  class="w-full h-auto rounded-2xl border-4 border-white dark:border-gray-600">
                             <div class="absolute -bottom-6 -right-6">
                                 <div class="bg-yellow-400 rounded-full p-4 shadow-lg">
@@ -277,14 +347,25 @@
                     <h3 class="ghibli-font text-3xl mb-6 text-gray-800 dark:text-gray-200">
                         Once upon a time...
                     </h3>
-                    <p class="text-gray-600 mb-6 dark:text-gray-400">
-                        A Product Manager set out to bridge user needs and business goals in the mystical land of technology. With a compass of curiosity and a map of metrics, I navigate through complex problems to deliver solutions that feel like magic.
-                    </p>
-                    <p class="text-gray-600 mb-8 dark:text-gray-400">
-                        My journey began in the enchanted forests of UX design, where I learned to listen to the whispers of users. I then ventured into the mountains of data analysis, discovering patterns in the stars. Now, I craft product strategies that combine both art and science.
-                    </p>
+                    <div class="text-gray-600 space-y-4 dark:text-gray-400">
+                        <p>
+                            In the ever-shifting landscape of business, where challenges loom like towering mountains and opportunities sparkle like hidden gems, a Management Consultant set forth on a mission: to turn complexity into clarity, data into direction, and strategy into success.
+                        </p>
+                        <p>
+                            Armed with the sword of strategic problem-solving, the shield of data analysis, and the map of actionable insights, I navigate the intricate pathways of decision-making, helping leaders and organizations find their way through uncertainty.
+                        </p>
+                        <p>
+                            I believe in the power of fact-based decision-making and value-driven strategies—not just as concepts, but as the very foundation of transformation. My quest? To deliver high-impact consulting solutions that empower business leaders, stakeholders, and organizations to tackle their most pressing challenges with confidence.
+                        </p>
+                        <p>
+                            Guided by continuous learning, analytical rigor, and innovation, I draw upon a deep understanding of business strategy, financial analysis, and market dynamics to craft solutions that don't just work—they drive real, lasting impact.
+                        </p>
+                        <p>
+                            Each project is a new chapter, each challenge a new adventure. Let's embark on this journey together—where data meets strategy, and insights lead to success.
+                        </p>
+                    </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4 mt-8">
                         <div class="bg-blue-50 p-4 rounded-xl flex items-center dark:bg-gray-700">
                             <div class="bg-blue-100 p-3 rounded-full mr-4 dark:bg-gray-600">
                                 <i class="fas fa-route text-blue-600 dark:text-blue-300"></i>
@@ -299,7 +380,7 @@
                                 <i class="fas fa-users text-yellow-600 dark:text-yellow-300"></i>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-800 dark:text-gray-200">Stargazer Alignment</h4>
+                                <h4 class="font-bold text-gray-800 dark:text-gray-200">Strategy Alignment</h4>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Bringing teams together under one sky</p>
                             </div>
                         </div>
@@ -329,7 +410,6 @@
 
     <!-- Skills Section -->
     <section id="skills" class="py-20 bg-gray-50 dark:bg-gray-900" style="position:relative;">
-        <button class="edit-section-btn" data-section="skills" style="display:none;position:absolute;top:1rem;right:1rem;background:#38a169;color:white;padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.875rem;z-index:10">Edit Skills</button>
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="ghibli-font text-4xl text-center mb-16 text-blue-700 dark:text-blue-300">
                 <span class="border-b-4 border-yellow-400 pb-2">My Magic Toolbox</span>
@@ -489,7 +569,6 @@
 
     <!-- Timeline Section -->
     <section id="timeline" class="py-20 bg-white dark:bg-gray-800" style="position:relative;">
-        <button class="edit-section-btn" data-section="timeline" style="display:none;position:absolute;top:1rem;right:1rem;background:#38a169;color:white;padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.875rem;z-index:10">Edit Timeline</button>
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="ghibli-font text-4xl text-center mb-16 text-blue-700 dark:text-blue-300">
                 <span class="border-b-4 border-yellow-400 pb-2">My Journey</span>
@@ -505,43 +584,29 @@
                     <div class="relative flex flex-col md:flex-row items-center">
                         <div class="md:w-1/2 md:pr-16 mb-8 md:mb-0 text-right">
                             <div class="bg-blue-50 p-6 rounded-2xl shadow-lg dark:bg-gray-700">
-                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">Senior Product Manager</h3>
-                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Enchanted Tech Inc. • 2021-Present</p>
+                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">Consultant</h3>
+                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Capgemini India • 2023-Present</p>
                                 <p class="text-gray-600 dark:text-gray-400">
-                                    Led the development of a magical onboarding experience that reduced time-to-value by 40%. Collaborated with wizards (engineers) and druids (designers) to craft intuitive user journeys.
+                                    Consultant at Capgemini leading ERP transformations, P&L management, and digital initiatives; expertise in governance, operations analytics, market analysis, and driving margin growth, efficiency, and AI-led customer service enhancements.
                                 </p>
                             </div>
                         </div>
                         <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
                             <div class="timeline-lantern"></div>
                         </div>
-                        <div class="md:w-1/2 md:pl-16">
-                            <div class="bg-gray-100 p-4 rounded-xl inline-block dark:bg-gray-700">
-                                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" 
-                                     alt="Enchanted Tech" 
-                                     class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-600">
-                            </div>
-                        </div>
                     </div>
                     
                     <!-- Item 2 -->
                     <div class="relative flex flex-col md:flex-row items-center">
-                        <div class="md:w-1/2 md:pl-16 order-2 md:order-1">
-                            <div class="bg-gray-100 p-4 rounded-xl inline-block dark:bg-gray-700">
-                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" 
-                                     alt="Mystical Startup" 
-                                     class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-600">
-                            </div>
-                        </div>
                         <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
                             <div class="timeline-lantern"></div>
                         </div>
                         <div class="md:w-1/2 md:pr-16 order-1 md:order-2 mb-8 md:mb-0">
                             <div class="bg-blue-50 p-6 rounded-2xl shadow-lg dark:bg-gray-700">
-                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">Product Manager</h3>
-                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Mystical Startup • 2018-2021</p>
+                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">Summer Intern Consultant - Enterprise Growth Group</h3>
+                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Tata Consultancy Services • 2022</p>
                                 <p class="text-gray-600 dark:text-gray-400">
-                                    Scaled the product from 0 to 1M users by implementing a crystal-clear vision and data-driven decision making. Worked closely with the dragon (CEO) to align product strategy with business goals.
+                                    Summer Intern at TCS, developed a retail strategy framework addressing store cannibalization; conducted primary research across formats and designed actionable solutions using a 7-parameter, 30+ sub-parameter model.
                                 </p>
                             </div>
                         </div>
@@ -551,43 +616,29 @@
                     <div class="relative flex flex-col md:flex-row items-center">
                         <div class="md:w-1/2 md:pr-16 mb-8 md:mb-0 text-right">
                             <div class="bg-blue-50 p-6 rounded-2xl shadow-lg dark:bg-gray-700">
-                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">Associate PM</h3>
-                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Forest Analytics • 2016-2018</p>
+                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">Market Research Live Project</h3>
+                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Merkle Sokrati - Internship • Dec 2021 - Jan 2022</p>
                                 <p class="text-gray-600 dark:text-gray-400">
-                                    Learned the ancient arts of analytics and user research. Helped improve retention by 25% by identifying pain points in the user journey through careful observation and data analysis.
+                                    Conducted competitive analysis and brand mapping for India-based beauty retailers; analyzed customer behavior, addressed trust barriers, and recommended strategies to enhance brand credibility and optimize digital engagement.
                                 </p>
                             </div>
                         </div>
                         <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
                             <div class="timeline-lantern"></div>
                         </div>
-                        <div class="md:w-1/2 md:pl-16">
-                            <div class="bg-gray-100 p-4 rounded-xl inline-block dark:bg-gray-700">
-                                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" 
-                                     alt="Forest Analytics" 
-                                     class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-600">
-                            </div>
-                        </div>
                     </div>
                     
                     <!-- Item 4 -->
                     <div class="relative flex flex-col md:flex-row items-center">
-                        <div class="md:w-1/2 md:pl-16 order-2 md:order-1">
-                            <div class="bg-gray-100 p-4 rounded-xl inline-block dark:bg-gray-700">
-                                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" 
-                                     alt="UX Design Academy" 
-                                     class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-600">
-                            </div>
-                        </div>
                         <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
                             <div class="timeline-lantern"></div>
                         </div>
                         <div class="md:w-1/2 md:pr-16 order-1 md:order-2 mb-8 md:mb-0">
                             <div class="bg-blue-50 p-6 rounded-2xl shadow-lg dark:bg-gray-700">
-                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">UX Designer</h3>
-                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">UX Design Academy • 2014-2016</p>
+                                <h3 class="ghibli-font text-2xl text-blue-700 mb-2 dark:text-blue-300">AT&T - Internship</h3>
+                                <p class="text-gray-600 font-medium mb-2 dark:text-gray-400">Jun 2020 - Jul 2020</p>
                                 <p class="text-gray-600 dark:text-gray-400">
-                                    Began my journey by learning to listen to the whispers of users. Created wireframes and prototypes that told compelling stories about user needs and pain points.
+                                    Conducted market research, collaborated globally, and developed strategic insights for emerging markets; enhanced leadership skills through mentorship sessions, live Q&As, and presentations to senior professionals and industry experts.
                                 </p>
                             </div>
                         </div>
@@ -599,7 +650,6 @@
 
     <!-- Projects Section -->
     <section id="projects" class="py-20 bg-gray-50 dark:bg-gray-900" style="position:relative;">
-        <button class="edit-section-btn" data-section="projects" style="display:none;position:absolute;top:1rem;right:1rem;background:#38a169;color:white;padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.875rem;z-index:10">Edit Projects</button>
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="ghibli-font text-4xl text-center mb-16 text-blue-700 dark:text-blue-300">
                 <span class="border-b-4 border-yellow-400 pb-2">Magical Projects</span>
@@ -626,7 +676,7 @@
             
             <div class="text-center mt-16">
                 <button id="viewAllProjectsBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105 dark:bg-blue-700 dark:hover:bg-blue-800">
-                    View All Projects <i class="fas fa-sparkles ml-2"></i>
+                    View All Projects <i class="fas fa-wand-magic-sparkles ml-2"></i>
                 </button>
             </div>
         </div>
@@ -639,71 +689,97 @@
                 <span class="border-b-4 border-yellow-400 pb-2">Magical Journeys</span>
             </h2>
             
-            <div class="slideshow-container relative mx-auto max-w-4xl rounded-2xl overflow-hidden shadow-2xl">
+            <div class="swiper swiper-magical max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl">
                 <!-- Slides -->
-                <div class="slide fade relative">
-                    <img src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=1200&q=80" 
-                         class="w-full h-[500px] object-cover" alt="Sunset over mountains">
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                        <h3 class="text-white text-2xl font-bold ghibli-font">Dawn of Inspiration</h3>
-                        <p class="text-white/90">Where every product journey begins</p>
+                <div class="swiper-wrapper">
+                    <!-- Slide 1 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-1.jpg" alt="Magical Journey Image 1">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 1</h3>
+                            <p class="text-white/90">Description for journey step 1</p>
+                        </div>
                     </div>
-                    <div class="absolute -top-2 -left-2 opacity-60">
-                        <div class="kodama floating"></div>
+                    <!-- Slide 2 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-2.jpg" alt="Magical Journey Image 2">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 2</h3>
+                            <p class="text-white/90">Description for journey step 2</p>
+                        </div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-3.jpg" alt="Magical Journey Image 3">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 3</h3>
+                            <p class="text-white/90">Description for journey step 3</p>
+                        </div>
+                    </div>
+                    <!-- Slide 4 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-4.jpg" alt="Magical Journey Image 4">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 4</h3>
+                            <p class="text-white/90">Description for journey step 4</p>
+                        </div>
+                    </div>
+                    <!-- Slide 5 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-5.jpg" alt="Magical Journey Image 5">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 5</h3>
+                            <p class="text-white/90">Description for journey step 5</p>
+                        </div>
+                    </div>
+                    <!-- Slide 6 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-6.jpg" alt="Magical Journey Image 6">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 6</h3>
+                            <p class="text-white/90">Description for journey step 6</p>
+                        </div>
+                    </div>
+                    <!-- Slide 7 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-7.jpg" alt="Magical Journey Image 7">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 7</h3>
+                            <p class="text-white/90">Description for journey step 7</p>
+                        </div>
+                    </div>
+                    <!-- Slide 8 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-8.jpg" alt="Magical Journey Image 8">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 8</h3>
+                            <p class="text-white/90">Description for journey step 8</p>
+                        </div>
+                    </div>
+                    <!-- Slide 9 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-9.jpg" alt="Magical Journey Image 9">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 9</h3>
+                            <p class="text-white/90">Description for journey step 9</p>
+                        </div>
+                    </div>
+                    <!-- Slide 10 -->
+                    <div class="swiper-slide">
+                        <img src="images/magical-journeys/journey-10.jpg" alt="Magical Journey Image 10">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
+                            <h3 class="text-white text-2xl font-bold ghibli-font">Journey Step 10</h3>
+                            <p class="text-white/90">Description for journey step 10</p>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="slide fade relative">
-                    <img src="https://images.unsplash.com/photo-1510784722466-f2aa9c52fff6?auto=format&fit=crop&w=1200&q=80" 
-                         class="w-full h-[500px] object-cover" alt="Foggy forest">
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                        <h3 class="text-white text-2xl font-bold ghibli-font">Forest of Discovery</h3>
-                        <p class="text-white/90">Navigating through user insights</p>
-                    </div>
-                    <div class="absolute -top-2 -right-2 opacity-60">
-                        <div class="kodama floating" style="animation-delay: 0.5s;"></div>
-                    </div>
-                </div>
+                <!-- Add navigation buttons -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
                 
-                <div class="slide fade relative">
-                    <img src="https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?auto=format&fit=crop&w=1200&q=80" 
-                         class="w-full h-[500px] object-cover" alt="Night sky with stars">
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                        <h3 class="text-white text-2xl font-bold ghibli-font">Starlit Innovation</h3>
-                        <p class="text-white/90">Dreams transform into reality</p>
-                    </div>
-                    <div class="absolute top-10 right-10 opacity-70">
-                        <div class="catbus floating" style="animation-delay: 1s;"></div>
-                    </div>
-                </div>
-                
-                <div class="slide fade relative">
-                    <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80" 
-                         class="w-full h-[500px] object-cover" alt="Magical landscape">
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
-                        <h3 class="text-white text-2xl font-bold ghibli-font">Path to Wonder</h3>
-                        <p class="text-white/90">Every milestone tells a story</p>
-                    </div>
-                    <div class="absolute -top-2 -left-2 opacity-60">
-                        <div class="kodama floating" style="animation-delay: 1.5s;"></div>
-                    </div>
-                </div>
-                
-                <!-- Navigation arrows -->
-                <button class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-3 rounded-full cursor-pointer z-10 backdrop-blur-sm transition" onclick="changeSlide(-1)">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-3 rounded-full cursor-pointer z-10 backdrop-blur-sm transition" onclick="changeSlide(1)">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <!-- Dots/circles -->
-                <div class="text-center mt-4">
-                    <span class="dot cursor-pointer inline-block w-3 h-3 mx-1 bg-gray-400 rounded-full hover:bg-gray-600 transition"></span>
-                    <span class="dot cursor-pointer inline-block w-3 h-3 mx-1 bg-gray-400 rounded-full hover:bg-gray-600 transition"></span>
-                    <span class="dot cursor-pointer inline-block w-3 h-3 mx-1 bg-gray-400 rounded-full hover:bg-gray-600 transition"></span>
-                    <span class="dot cursor-pointer inline-block w-3 h-3 mx-1 bg-gray-400 rounded-full hover:bg-gray-600 transition"></span>
-                </div>
+                <!-- Add pagination -->
+                <div class="swiper-pagination"></div>
             </div>
         </div>
     </section>
@@ -712,34 +788,30 @@
     <section id="contact" class="py-20 bg-gray-50 dark:bg-gray-900">
         <div class="max-w-4xl mx-auto px-4">
             <h2 class="ghibli-font text-4xl text-center mb-16 text-blue-700 dark:text-blue-300">
-                <span class="border-b-4 border-yellow-400 pb-2">Send a Message to the Spirit Realm</span>
+                <span class="border-b-4 border-yellow-400 pb-2">Let's Connect</span>
             </h2>
             
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden dark:bg-gray-800">
                 <div class="md:flex">
-                    <div class="md:w-1/2 bg-blue-600 p-10 text-white dark:bg-blue-700">
+                    <div class="md:w-full bg-blue-600 p-10 text-white dark:bg-blue-700">
                         <h3 class="ghibli-font text-3xl mb-4">Let's Create Magic Together</h3>
                         <p class="mb-6">
-                            Whether you're looking for a product wizard to join your quest or just want to share thoughts on Ghibli films and product management, I'd love to hear from you!
+                            The journey doesn't end here. I'm always looking for new quests — whether it's leading strategy for a new market, building products that delight users, or solving problems that matter.
+                            <br><br>
+                            And if you just want to chat about innovative projects, creative ideas, or spreadsheets that sing — I'm in.
                         </p>
                         <div class="space-y-4">
                             <div class="flex items-center">
                                 <div class="bg-blue-500 p-2 rounded-full mr-4 dark:bg-blue-600">
                                     <i class="fas fa-envelope"></i>
                                 </div>
-                                <span>hello@productjourney.com</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="bg-blue-500 p-2 rounded-full mr-4 dark:bg-blue-600">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <span>+1 (555) 123-4567</span>
+                                <a href="mailto:arpanguria68@gmail.com" class="hover:underline">arpanguria68@gmail.com</a>
                             </div>
                             <div class="flex items-center">
                                 <div class="bg-blue-500 p-2 rounded-full mr-4 dark:bg-blue-600">
                                     <i class="fas fa-map-marker-alt"></i>
                                 </div>
-                                <span>San Francisco, CA</span>
+                                <span>Bengaluru, IN</span>
                             </div>
                         </div>
                         <div class="mt-8 flex space-x-4">
@@ -753,25 +825,6 @@
                                 <i class="fab fa-github"></i>
                             </a>
                         </div>
-                    </div>
-                    <div class="md:w-1/2 p-10">
-                        <form>
-                            <div class="mb-4">
-                                <label for="name" class="block text-gray-700 mb-2 dark:text-gray-300">Your Name</label>
-                                <input type="text" id="name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div class="mb-4">
-                                <label for="email" class="block text-gray-700 mb-2 dark:text-gray-300">Your Email</label>
-                                <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div class="mb-4">
-                                <label for="message" class="block text-gray-700 mb-2 dark:text-gray-300">Your Message</label>
-                                <textarea id="message" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-                            </div>
-                            <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-3 px-4 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center justify-center">
-                                <i class="fas fa-paper-plane mr-2"></i> Send Message
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -810,7 +863,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>© 2023 Product Journey. All rights reserved. Crafted with magic and ♥</p>
+                <p>© 2025 Product Journey. All rights reserved. Crafted with magic and ♥</p>
                 <p class="mt-2 text-sm">Inspired by the enchanting worlds of Studio Ghibli</p>
             </div>
         </div>
@@ -888,7 +941,6 @@
     <!-- Load Firebase Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script>
       // Initialize Firebase
       const firebaseConfig = {
@@ -901,155 +953,42 @@
         appId: "1:506713176316:web:f2dea75b7c84e4fc20bdad"
       };
       firebase.initializeApp(firebaseConfig);
-      const db = firebase.database();
-      const auth = firebase.auth();
-
-      // Dynamic load for Magical Projects
-      document.addEventListener('DOMContentLoaded', () => {
-        const loading = document.getElementById('projectsLoading');
-        const grid = document.getElementById('projectsGrid');
-        const errorDiv = document.getElementById('projectsError');
-        loading.classList.remove('hidden');
-        grid.classList.add('hidden');
-        errorDiv.classList.add('hidden');
-
-        db.ref('caseStudies').once('value')
-          .then(snapshot => {
-            loading.classList.add('hidden');
-            if (!snapshot.exists()) {
-              errorDiv.querySelector('p').textContent = 'No magical projects available yet.';
-              errorDiv.classList.remove('hidden');
-              return;
-            }
-            grid.innerHTML = '';
-            snapshot.forEach(child => {
-              const cs = child.val();
-              const id = child.key;
-              const card = document.createElement('div');
-              card.className = 'project-book';
-              card.innerHTML = `
-                <div class="relative h-full">
-                  <div class="book-inner bg-white rounded-xl shadow-xl overflow-hidden h-full dark:bg-gray-800">
-                    <img src="${cs.projectImageUrl}" alt="${cs.projectTitle}" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                      <h3 class="ghibli-font text-2xl dark:text-gray-200 mb-2">${cs.projectTitle}</h3>
-                      <p class="text-gray-600 dark:text-gray-400 mb-4">${cs.projectDescription || ''}</p>
-                      <div class="flex items-center mb-4">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800">${cs.projectCategory || ''}</span>
-                      </div>
-                      <div class="flex justify-between items-center">
-                        <div>
-                          <span class="text-yellow-500">${'★'.repeat(cs.projectRating||0)}${'☆'.repeat(5 - (cs.projectRating||0))}</span>
-                          <p class="text-sm text-gray-600 dark:text-gray-400">${cs.projectAchievement || ''}</p>
-                        </div>
-                        <a href="case_study.html?caseId=${id}" class="text-blue-600 dark:text-blue-400 hover:underline">Read Story</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>`;
-              grid.appendChild(card);
-            });
-            grid.classList.remove('hidden');
-          })
-          .catch(err => {
-            console.error('Error loading magical projects:', err);
-            loading.classList.add('hidden');
-            errorDiv.classList.remove('hidden');
-          });
-      });
-
-      // Show edit buttons for admins
-      auth.onAuthStateChanged(user => {
-        document.querySelectorAll('.edit-section-btn').forEach(btn => {
-          btn.style.display = user ? 'block' : 'none';
-        });
-      });
-
-      // Navigate to admin on edit click
-      document.addEventListener('click', e => {
-        if (e.target.matches('.edit-section-btn')) {
-          window.location.href = `admin.html#${e.target.dataset.section}`;
-        }
-      });
-
-      // Load saved section HTML
-      db.ref('sections').once('value').then(snap => {
-        const sections = snap.val() || {};
-        Object.keys(sections).forEach(secId => {
-          if (['projects','contact'].includes(secId)) return;
-          const html = sections[secId].html;
-          const secEl = document.getElementById(secId);
-          if (secEl && html) secEl.innerHTML = html;
-        });
-      });
-
-      // Inline edit buttons
-      auth.onAuthStateChanged(user => {
-        ['hero','about','skills','timeline','testimonials'].forEach(secId => {
-          const secEl = document.getElementById(secId);
-          if (!secEl) return;
-          let btn = document.createElement('button');
-          btn.className = 'edit-inline-btn';
-          btn.dataset.section = secId;
-          btn.style = 'display:' + (user ? 'block' : 'none') + 
-            ';position:absolute;top:10px;right:10px;z-index:10;background:#38a169;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer';
-          btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-          secEl.style.position = 'relative';
-          secEl.appendChild(btn);
-          btn.addEventListener('click', () => {
-            if (secEl.isContentEditable) {
-              secEl.contentEditable = false;
-              btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-              // Save HTML
-              db.ref('sections/' + secId + '/html').set(secEl.innerHTML);
-            } else {
-              secEl.contentEditable = true;
-              btn.innerHTML = '<i class="fas fa-save"></i>';
-            }
-          });
-        });
-      });
     </script>
+    <script src="script.js"></script>
+    
+    <!-- Immediate fix for edit functionality -->
     <script>
-      // Slideshow JavaScript
-      let slideIndex = 0;
-      const slides = document.getElementsByClassName("slide");
-      const dots = document.getElementsByClassName("dot");
-      
-      document.addEventListener('DOMContentLoaded', () => {
-        showSlide(slideIndex);
+      // Ensure this runs immediately and constantly to prevent edit UI
+      (function() {
+        // First run immediately
+        removeEditUI();
         
-        // Add click events to dots
-        for (let i = 0; i < dots.length; i++) {
-          dots[i].addEventListener('click', () => {
-            showSlide(i);
+        // Then keep checking periodically
+        setInterval(removeEditUI, 500);
+        
+        function removeEditUI() {
+          // Remove all edit buttons
+          document.querySelectorAll('.edit-inline-btn, .edit-section-btn, [class*="edit"], [id*="edit"], button[data-section]').forEach(btn => {
+            if (btn) {
+              btn.style.display = 'none';
+              btn.remove();
+            }
+          });
+          
+          // Remove contenteditable
+          document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+            element.removeAttribute('contenteditable');
+          });
+          
+          // Find elements with "Saving..." text and remove them
+          document.querySelectorAll('button, [class*="btn"]').forEach(el => {
+            if (el.innerText && el.innerText.includes('Saving')) {
+              el.style.display = 'none';
+              el.remove();
+            }
           });
         }
-        
-        // Auto advance slideshow
-        setInterval(() => {
-          changeSlide(1);
-        }, 6000);
-      });
-      
-      function changeSlide(n) {
-        showSlide(slideIndex += n);
-      }
-      
-      function showSlide(n) {
-        if (n >= slides.length) { slideIndex = 0; }
-        if (n < 0) { slideIndex = slides.length - 1; }
-        
-        // Hide all slides
-        for (let i = 0; i < slides.length; i++) {
-          slides[i].style.display = "none";
-          dots[i].classList.remove("active");
-        }
-        
-        // Display current slide and activate dot
-        slides[slideIndex].style.display = "block";
-        dots[slideIndex].classList.add("active");
-      }
+      })();
     </script>
 </body>
 </html>

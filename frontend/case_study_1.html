@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="case_study_script.js"></script>
+    <link rel="stylesheet" href="../public/carousel.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Quicksand:wght@400;600&display=swap');
         
@@ -482,25 +483,37 @@
             <div class="mb-16 slide-in delayed-1">
                 <h3 class="text-2xl font-bold mb-6 ghibli-text-green">Design Evolution</h3>
                 <div class="bg-white p-6 rounded-xl sketch-border">
-                    <div class="flex overflow-x-auto pb-4 custom-scrollbar space-x-4">
-                        <div class="flex-shrink-0 w-64">
-                            <img src="https://i.imgur.com/Jp1hFD1.png" alt="Wireframe 1" class="w-full h-auto rounded border border-gray-200">
-                            <p class="text-center mt-2 text-sm">Low-fidelity Wireframe</p>
+                    <div class="simple-carousel">
+                        <div class="carousel-container">
+                            <div class="carousel-track">
+                                <div class="carousel-slide">
+                                    <img src="https://i.imgur.com/Jp1hFD1.png" alt="Wireframe 1" class="w-full h-auto rounded border border-gray-200">
+                                    <p class="text-center mt-2 text-sm">Low-fidelity Wireframe</p>
+                                </div>
+                                <div class="carousel-slide">
+                                    <img src="https://i.imgur.com/3VtTQ2B.png" alt="Wireframe 2" class="w-full h-auto rounded border border-gray-200">
+                                    <p class="text-center mt-2 text-sm">Mid-fidelity Prototype</p>
+                                </div>
+                                <div class="carousel-slide">
+                                    <img src="https://i.imgur.com/5Z3Wf7j.jpg" alt="Design 1" class="w-full h-auto rounded border border-gray-200">
+                                    <p class="text-center mt-2 text-sm">High-fidelity Mockup</p>
+                                </div>
+                                <div class="carousel-slide">
+                                    <img src="https://i.imgur.com/8KQ3b9L.jpg" alt="Design 2" class="w-full h-auto rounded border border-gray-200">
+                                    <p class="text-center mt-2 text-sm">Interactive Prototype</p>
+                                    <button class="mt-2 mx-auto text-blue-500 hover:text-blue-700 text-sm flex items-center justify-center">
+                                        <i class="fas fa-external-link-alt mr-2"></i> View Figma
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex-shrink-0 w-64">
-                            <img src="https://i.imgur.com/3VtTQ2B.png" alt="Wireframe 2" class="w-full h-auto rounded border border-gray-200">
-                            <p class="text-center mt-2 text-sm">Mid-fidelity Prototype</p>
-                        </div>
-                        <div class="flex-shrink-0 w-64">
-                            <img src="https://i.imgur.com/5Z3Wf7j.jpg" alt="Design 1" class="w-full h-auto rounded border border-gray-200">
-                            <p class="text-center mt-2 text-sm">High-fidelity Mockup</p>
-                        </div>
-                        <div class="flex-shrink-0 w-64">
-                            <img src="https://i.imgur.com/8KQ3b9L.jpg" alt="Design 2" class="w-full h-auto rounded border border-gray-200">
-                            <p class="text-center mt-2 text-sm">Interactive Prototype</p>
-                            <button class="mt-2 mx-auto text-blue-500 hover:text-blue-700 text-sm flex items-center justify-center">
-                                <i class="fas fa-external-link-alt mr-2"></i> View Figma
-                            </button>
+                        <button class="carousel-btn prev-btn">&lt;</button>
+                        <button class="carousel-btn next-btn">&gt;</button>
+                        <div class="carousel-dots">
+                            <span class="carousel-dot active"></span>
+                            <span class="carousel-dot"></span>
+                            <span class="carousel-dot"></span>
+                            <span class="carousel-dot"></span>
                         </div>
                     </div>
                 </div>
@@ -635,4 +648,11 @@
         <div id="cs-content" class="prose lg:prose-lg"></div>
         <!-- Existing static content can remain as fallback or template -->
     </div>
+    <script src="../public/carousel.js"></script>
+    <script>
+        // Initialize all carousels when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCarousels();
+        });
+    </script>
 </body>

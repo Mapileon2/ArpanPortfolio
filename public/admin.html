@@ -1564,6 +1564,112 @@
                 `;
             }
         });
+
+        // Add direct case study management container
+        const caseStudyManagerDiv = document.createElement('div');
+        caseStudyManagerDiv.id = 'caseStudyManager';
+        caseStudyManagerDiv.className = 'container mx-auto px-4 my-8';
+        caseStudyManagerDiv.innerHTML = `
+            <h2 class="text-2xl font-bold mb-4 dark:text-white border-b pb-2">Direct Case Study Management</h2>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 my-4">
+                <h3 class="text-xl font-bold mb-4 dark:text-white">Delete Case Studies</h3>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-2">Delete case studies directly by ID (use with caution)</p>
+                    <div id="directCaseStudyList" class="space-y-2 max-h-60 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <div class="text-center text-gray-500">Loading case studies...</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(caseStudyManagerDiv);
+        
+        // Load all case studies for direct management
+        function loadAllCaseStudies() {
+            const container = document.getElementById('directCaseStudyList');
+            if (!container) return;
+            
+            container.innerHTML = '<div class="text-center text-gray-500">Loading case studies...</div>';
+            
+            db.ref('caseStudies').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        container.innerHTML = '<div class="text-center text-gray-500">No case studies found</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    snapshot.forEach(csSnap => {
+                        const csId = csSnap.key;
+                        const cs = csSnap.val();
+                        
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded';
+                        itemEl.innerHTML = `
+                            <div>
+                                <div class="font-semibold text-gray-800 dark:text-white">${cs.projectTitle || 'Untitled'}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${csId}</div>
+                            </div>
+                            <button class="direct-delete-cs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm" 
+                                    data-id="${csId}">
+                                Delete
+                            </button>
+                        `;
+                        container.appendChild(itemEl);
+                    });
+                    
+                    // Add event listeners to delete buttons
+                    document.querySelectorAll('.direct-delete-cs').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const csId = this.getAttribute('data-id');
+                            if (confirm(`Are you sure you want to permanently delete case study ${csId}? This action cannot be undone.`)) {
+                                showNotification('info', 'Processing', 'Deleting case study...', 5000);
+                                
+                                // Delete the case study
+                                db.ref(`caseStudies/${csId}`).remove()
+                                    .then(() => {
+                                        // Get the case study data to find linked project
+                                        db.ref(`projects`).once('value')
+                                            .then(projectsSnapshot => {
+                                                if (projectsSnapshot.exists()) {
+                                                    // Check all projects to find those referencing this case study
+                                                    projectsSnapshot.forEach(projSnap => {
+                                                        const project = projSnap.val();
+                                                        if (project.caseStudyId === csId) {
+                                                            // Update project references
+                                                            db.ref(`projects/${projSnap.key}/hasCaseStudy`).set(false);
+                                                            db.ref(`projects/${projSnap.key}/caseStudyId`).set(null);
+                                                            db.ref(`projects/${projSnap.key}/updatedAt`).set(firebase.database.ServerValue.TIMESTAMP);
+                                                            console.log(`Updated project ${projSnap.key} to remove reference to deleted case study`);
+                                                        }
+                                                    });
+                                                }
+                                                
+                                                showNotification('success', 'Success', 'Case study deleted successfully');
+                                                loadAllCaseStudies(); // Refresh the list
+                                            })
+                                            .catch(error => {
+                                                console.error('Error checking projects:', error);
+                                                // Still show success even if project update fails
+                                                showNotification('success', 'Success', 'Case study deleted but some project references may not be updated');
+                                                loadAllCaseStudies();
+                                            });
+                                    })
+                                    .catch(error => {
+                                        showNotification('error', 'Error', `Failed to delete: ${error.message}`);
+                                        console.error('Delete error:', error);
+                                    });
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    container.innerHTML = `<div class="text-center text-red-500">Error loading case studies: ${error.message}</div>`;
+                    console.error('Error loading case studies:', error);
+                });
+        }
+        
+        // Load case studies when the page loads
+        loadAllCaseStudies();
     </script>
 </body>
 </html> 
