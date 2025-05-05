@@ -9,6 +9,12 @@ node_modules/
 .env.production.local
 backend.env
 
+# Firebase credentials and service accounts
+*firebase-adminsdk*.json
+projectportfolio-29467-firebase-adminsdk-fbsvc-2b514f55ed.json
+*-firebase-adminsdk-*.json
+*-service-account-*.json
+
 # Logs
 logs
 *.log
